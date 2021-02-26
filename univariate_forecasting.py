@@ -50,7 +50,7 @@ year_mult = 2
 for i in btc.columns[1:]:
     ts = Prophet(daily_seasonality = False,    #testing many different parameters, why not!
                  growth = 'logistic',
-                changepoint_prior_scale=0.25)  #Increasing changepoint increases forecast uncertainty - better in btc case and strong bull market - default is .05
+                changepoint_prior_scale=0.25) #Increasing changepoint increases forecast uncertainty - better in btc case - default is .05
     ts.add_country_holidays(country_name='US')
 
     
@@ -65,5 +65,4 @@ for i in btc.columns[1:]:
     preds = ts.predict(future_days)
     
     ts.plot(preds)
-    plt.title(i)
-
+    plt.title(i + "\n MAE: " + str(1/len(btc) * abs(btc['y'] - preds['yhat']).sum()) + "\n RMSE: " + str(np.sqrt((((btc['y'] - preds['yhat']).sum())**2)) / len(btc['y'])))
