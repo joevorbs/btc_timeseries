@@ -1,3 +1,3 @@
-# Using Facebook's Prophet package to Perform some Time Series Forecasting on the Price of BTC.
-Currently only a few BTC price points (Closing, 24hr high, etc.) are being used as variables but more datasets will be brought in.
-A few different methods will be utilized to develop forecasts.
+# Performing Timeseries Forecasting on BTC Experimenting with Multiple Methods
+Currently only a few BTC price points (Closing, 24hr high, etc.) are being used as features but more datasets will be added.
+A few different methods will be utilized to develop forecasts. This is also a way to experiment with Facebook's Prophet timeseries library.
