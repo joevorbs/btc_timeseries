@@ -43,14 +43,18 @@ for i in btc.columns:
 
 #Use prophet to create univariate forecasts for each model
 
+#Use prophet to create univariate forecasts for each model
+
 #Easy switch to change number of years for future predictions
 year_mult = 2
 
-#Loop for every variable and develop a univariate forecast 
+#Loop for every variable and develop a univariate forecast - will implement grid search soon
 for i in btc.columns[1:]:
-    ts = Prophet(daily_seasonality = False,    #testing many different parameters, why not!
+    ts = Prophet(daily_seasonality = False,    #testing different parameters, why not!
                  growth = 'logistic',
-                changepoint_prior_scale=0.25) #Increasing changepoint increases forecast uncertainty - better in btc case - default is .05
+                changepoint_prior_scale=0.25, #Increasing changepoint increases forecast uncertainty - better in btc case - default is .05
+                interval_width=0.9) #Can change uncertainty intervals - assistive when modeling more rate changes
+    
     ts.add_country_holidays(country_name='US')
 
     
@@ -64,5 +68,11 @@ for i in btc.columns[1:]:
     
     preds = ts.predict(future_days)
     
+    #Metrics for plotting
+    mae = 1/len(btc) * abs(btc['y'] - preds['yhat']).sum()
+    rmse = np.sqrt((((btc['y'] - preds['yhat']).sum())**2)) / len(btc['y'])
+    r2 = 1 - ((btc['y'] - preds['yhat'])**2).sum() / ((btc['y'] - btc['y'].mean())**2).sum()
+    
     ts.plot(preds)
-    plt.title(i + "\n MAE: " + str(1/len(btc) * abs(btc['y'] - preds['yhat']).sum()) + "\n RMSE: " + str(np.sqrt((((btc['y'] - preds['yhat']).sum())**2)) / len(btc['y'])))
+              
+    plt.title(i + "\n R2: " + str(r2) + "\n MAE: " + str(mae) + "\n RMSE: " + str(rmse))
