@@ -48,12 +48,22 @@ for i in btc.columns:
 #Easy switch to change number of years for future predictions
 year_mult = 2
 
+
+#Create df for 'holidays' - specific dates to model, using btc halving dates
+holidays = pd.DataFrame({
+  'holiday': 'halving',
+  'ds': pd.to_datetime(['2012-10-28', '2016-07-09', '2020-05-11']),
+  'lower_window': 0,
+  'upper_window': 1,
+})
+
 #Loop for every variable and develop a univariate forecast - will implement grid search soon
 for i in btc.columns[1:]:
     ts = Prophet(daily_seasonality = False,    #testing different parameters, why not!
                  growth = 'logistic',
                 changepoint_prior_scale=0.25, #Increasing changepoint increases forecast uncertainty - better in btc case - default is .05
-                interval_width=0.9) #Can change uncertainty intervals - assistive when modeling more rate changes
+                interval_width=0.9, #Can change uncertainty intervals - assistive when modeling more rate changes
+                holidays = holidays) 
     
     ts.add_country_holidays(country_name='US')
 
@@ -63,16 +73,19 @@ for i in btc.columns[1:]:
     
     ts.fit(cols_to_use)
     
-    future_days = ts.make_future_dataframe(periods=365 * year_mult) #Change number of years with year_mult, 1 increase is 1 increase in year
+    future_days = ts.make_future_dataframe(periods = 365 * year_mult) #Change number of years with year_mult, 1 increase is 1 increase in year
     future_days['cap'] = 100000 #Setting cap for future df
     
     preds = ts.predict(future_days)
     
-    #Metrics for plotting
+    #Regression metrics for plotting
     mae = 1/len(btc) * abs(btc['y'] - preds['yhat']).sum()
     rmse = np.sqrt((((btc['y'] - preds['yhat']).sum())**2)) / len(btc['y'])
     r2 = 1 - ((btc['y'] - preds['yhat'])**2).sum() / ((btc['y'] - btc['y'].mean())**2).sum()
     
     ts.plot(preds)
-              
+    
+    #Including halving dates and model metrics on charts
+    plt.axvline(x=dt.datetime(2016,7,9), color='b', label='axvline - full height')
+    plt.axvline(x=dt.datetime(2020,5,11), color='b', label='axvline - full height')
     plt.title(i + "\n R2: " + str(r2) + "\n MAE: " + str(mae) + "\n RMSE: " + str(rmse))
