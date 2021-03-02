@@ -40,12 +40,14 @@ test['index'] = lead_lags_updated
 #Initialize empty df
 new_df = pd.DataFrame()
 
+#Cutoff for lead times in days - if every lead is included we will have a one row dataset
+cutoff = range(0, 1000)
+
 #For every column, create a new column based off every single possible lead time and append to a blank df
-for i in lead_lags_updated:
+for i in cutoff:
     new_col = test['Closing Price (USD)'].shift(i)
     new_df['cp_' + str(i)] = new_col #CP is coin price, temporary, will use real names
 
 
-#new_df.drop(pd.isnull())
-
-
+#Trim off rows with subsequent missing values
+new_df.dropna(inplace = True)
