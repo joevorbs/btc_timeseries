@@ -32,6 +32,10 @@ for df in li:
     df['Timestamp'] = pd.to_datetime(df['Timestamp'], yearfirst = True, errors = 'coerce')
     merged_df = test.merge(df, on = "Timestamp", how = "left")
 
+
+#Dropping duplicate columns from join - need to fix join code to avoid this step
+merged_df = merged_df.reset_index().T.drop_duplicates().T
+
 #Write out analytical dataset to repo
 merged_df.to_csv("/Users/joevorbeck/Documents/btc_timeseries/analytical_datasets/btc_analytical_dataset" + str(today) + ".csv")
 
