@@ -8,34 +8,25 @@ import pystan
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import seaborn as sns
 import matplotlib.pyplot as plt
+from datetime import datetime
+from datetime import date
+import time
 
-cd Desktop
+#Current date
+today = datetime.now().date()
 
-#Read in BTC historical price data - obtained from Coindesk
-btc = pd.read_csv("btc_20210225.csv")
+#Read in analytical dataset comprised of blockchain and bitcoin data
+btc = pd.read_csv("btc_analytical_dataset" + str(today) + ".csv")
 
 #Remove unnecessary column
-btc.drop("Currency", axis = 1, inplace = True)
+btc.drop(["Currency","Unnamed: 0"], axis = 1, inplace = True)
 
+#Convert Timestamp to datetime - need for interpolation
+btc['Timestamp'] = pd.to_datetime(btc['Timestamp'], yearfirst = True)
 
-test = pd.DataFrame(btc['Closing Price (USD)']).reset_index()
-
-#Create key-value pair to swap index of lead/lag times with correct index (ex: 0 to 100 -> -50 to 50)
-
-#Max number of lags
-maxlags = len(btc) - 1 
-
-#Correlate any 2, just need index [0]
-lead_and_lags = plt.xcorr(btc['Closing Price (USD)'], btc['24h Low (USD)'], maxlags = maxlags)[0] 
-#Index we want to change
-lead_lags_to_change = list(btc.index)
-
-#Create dictionary to map new values to old index
-val_map = dict(zip(lead_lags_to_change, lead_and_lags))
-lead_lags_updated = list(pd.Series(test['index']).replace(val_map))
-
-#Append new index to df
-test['index'] = lead_lags_updated
+#Interpolate missing values - we have BTC price data for everyday but not every blockchain metric is tracked everyday
+#Can use a timeseries based method to interpolate missing values - imputing averages won't work in BTC case
+btc_interp = btc.set_index("Timestamp").interpolate("time", axis = 0)
 
 #Initialize empty df
 new_df = pd.DataFrame()
@@ -44,10 +35,10 @@ new_df = pd.DataFrame()
 cutoff = range(0, 1000)
 
 #For every column, create a new column based off every single possible lead time and append to a blank df
-for i in cutoff:
-    new_col = test['Closing Price (USD)'].shift(i)
-    new_df['cp_' + str(i)] = new_col #CP is coin price, temporary, will use real names
-
+for i in btc_interp.columns:
+    for j in cutoff:
+        new_col = btc_interp[i].shift(j)
+        new_df[str(i) + "_" + str(j)] = new_col  #Name of each column is the column name with the lead time as a suffix
 
 #Trim off rows with subsequent missing values
 new_df.dropna(inplace = True)
