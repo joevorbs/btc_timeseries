@@ -9,8 +9,11 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+#Current date
+today = datetime.now().date()
+
 #Read in BTC historical price data - obtained from Coindesk
-btc = pd.read_csv("btc_20210225.csv")
+btc = pd.read_csv("btc_" + str(today)+ ".csv")
 
 #Remove unnecessary column
 btc.drop("Currency", axis = 1, inplace = True)
