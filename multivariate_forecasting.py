@@ -42,3 +42,18 @@ for i in btc_interp.columns:
 
 #Trim off rows with subsequent missing values
 new_df.dropna(inplace = True)
+
+#Isolate features & target
+X = final_df.drop("Closing Price (USD)_0", axis = 1)
+y = final_df['Closing Price (USD)_0']
+
+#Train/test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = .25)
+
+#Initialize lasso regression - regularization will help eliminate any non-signifcant lead times
+lasso_cv = LassoCV(cv = 5,
+                   n_alphas = 100) 
+
+#Initialize ordered lasso regresssion - alpha set to 1
+ord_lasso = OrdinalRidge(alpha = 1)
+
