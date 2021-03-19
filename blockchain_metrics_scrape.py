@@ -15,9 +15,6 @@ today = datetime.now().date()
 #Path to downloads folder
 dl_path = "/Users/joevorbeck/Downloads/"
 
-#Using webdriver automation to scrape different daily blockchain metrics
-driver = webdriver.Chrome("/Users/joevorbeck/desktop/chromedriver")
-
 #List of pages from blockchain.com to obtain data from
 pages = ["https://www.blockchain.com/charts/total-bitcoins",
          "https://www.blockchain.com/charts/blocks-size",
@@ -52,7 +49,7 @@ wallet_activity = ["Blockchain.com Wallets"]
 
 #all_metrics_to_scrape = [currency_statistics, block_details, network_activity, mining_info, wallet_activity]
 
-#Currency Statistics
+#Scrape Currency Statistics
 driver = webdriver.Chrome("/Users/joevorbeck/desktop/chromedriver")
 driver.get(pages[0])
 
@@ -69,7 +66,7 @@ for i in currency_statistics:
         print("Moving " + j + " to git repo")
         shutil.move(j, "/Users/joevorbeck/Documents/btc_timeseries/blockchain_data/" + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
 
-#Block Details
+#Scrape Block Details
 driver = webdriver.Chrome("/Users/joevorbeck/desktop/chromedriver")
 driver.get(pages[1])
 
@@ -86,7 +83,7 @@ for i in block_details:
         print("Moving " + j + " to git repo")
         shutil.move(j, "/Users/joevorbeck/Documents/btc_timeseries/blockchain_data/" + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
 
-#Mining Info
+#Scrape Mining Info
 driver = webdriver.Chrome("/Users/joevorbeck/desktop/chromedriver")
 driver.get(pages[2])
 
@@ -103,7 +100,7 @@ for i in mining_info:
         print("Moving " + j + " to git repo")
         shutil.move(j, "/Users/joevorbeck/Documents/btc_timeseries/blockchain_data/" + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
 
-#Network Activity
+#Scrape Network Activity
 driver = webdriver.Chrome("/Users/joevorbeck/desktop/chromedriver")
 driver.get(pages[3])
 
@@ -120,7 +117,7 @@ for i in network_activity:
         print("Moving " + j + " to git repo")
         shutil.move(j, "/Users/joevorbeck/Documents/btc_timeseries/blockchain_data/" + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
 
-#Wallet Activity
+#Scrape Wallet Activity
 driver = webdriver.Chrome("/Users/joevorbeck/desktop/chromedriver")
 driver.get(pages[4])
 
