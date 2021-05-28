@@ -59,6 +59,7 @@ for i in col_list:
 
 #Initialize empty df to store leads
 new_df = pd.DataFrame()
+
 #Need to reverse dataset order to place most recent observations at the top
 btc_residuals_flip = btc_residuals.iloc[::-1]
 
