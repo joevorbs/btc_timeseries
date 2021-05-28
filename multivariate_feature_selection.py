@@ -1,12 +1,9 @@
 import pandas as pd 
 import numpy as np
-import statistics
-import scipy.stats as st
-from fbprophet import Prophet
-from fbprophet.diagnostics import performance_metrics
-import pystan
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
-import seaborn as sns
+from sklearn.linear_model import LassoCV
+from sklearn.metrics import mean_absolute_error
+from fbprophet import Prophet
 import matplotlib.pyplot as plt
 from datetime import datetime
 from datetime import date
@@ -50,7 +47,7 @@ btc_interp.rename(columns = {'Timestamp' : 'ds'}, inplace = True)
 btc_residuals = pd.DataFrame()
 
 #List of columns to iterate through - ignoring our target variable and date
-col_list = new_df.columns.remove[target, "ds"]]
+col_list = btc_interp.columns.remove[target, "ds"]
 
 #Loop for all variables minus the target and obtain their residuals
 for i in col_list:
@@ -62,10 +59,6 @@ for i in col_list:
 
 #Initialize empty df to store leads
 new_df = pd.DataFrame()
-
-#Cutoff for lead times in days - if every lead is included we will have a one row dataset
-cutoff = range(0, lags) #2 Years 
-
 #Need to reverse dataset order to place most recent observations at the top
 btc_residuals_flip = btc_residuals.iloc[::-1]
 
@@ -88,8 +81,8 @@ new_df = new_df.reset_index().drop("index", axis = 1)
 new_df["Target"] = btc_interp[target][0:len(new_df)]
 
 #Isolate features & target
-X = final_df.drop(target, axis = 1)
-y = final_df[target]
+X = new_df.drop(target, axis = 1)
+y = np.log(new_df[target]) #Taking the log of btc price
 
 #Train/test split - want to keep 2/3 of the data for training, 1/3 for testing
 X_train = X[0:round(len(X) * .66)]
