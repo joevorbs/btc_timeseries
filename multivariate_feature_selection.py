@@ -111,4 +111,4 @@ coefs = pd.DataFrame(list(zip(lasso_cv.coef_, X_train.columns))).rename(columns 
 #Filter any coefficients shrunk to 0
 coefs_final_list = coefs[coefs['Beta'] > 0]
 #Write out list of features for the forecasting model
-coefs_final_list['Variable'].to_csv(path + "feature_list_" + str(today) + ".csv")
+coefs_final_list['Feature'].to_csv(path + "feature_list_" + str(today) + ".csv")
