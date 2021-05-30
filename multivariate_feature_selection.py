@@ -93,7 +93,7 @@ y_train = y[0:round(len(y) * .66)]
 y_test = y[len(y_train):]
 
 #Initialize lasso regression - regularization will help eliminate any non-signifcant lead times - can use CV if data is prewhitened
-lasso_cv = LassoCV(cv = 5, n_alphas = 100, max_iter = 1000, normalize = True) 
+lasso_cv = LassoCV(cv = 5, n_alphas = 100, max_iter = 1000, normalize = True, n_jobs = -1) 
 
 #Fit model to training data
 lasso_cv.fit(X_train, y_train)
