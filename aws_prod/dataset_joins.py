@@ -4,18 +4,24 @@ from datetime import datetime
 from datetime import date
 import time
 import glob
+import boto3
+import s3fs
 
 #Current date
 today = datetime.now().date()
 
+#Path to repo folder
+repo_path = "/home/ec2-user/repos/btc_timeseries/aws_prod/blockchain_data/"
+
 #Read in BTC historical price data - obtained from Coindesk
-btc = pd.read_csv("btc_20210228.csv")
-#Rename column & convert type to be consistent with blockchain dataq
+btc = pd.read_csv("s3://btc-coindesk/btc_" + str(today)  + ".csv")
+
+#Rename column & convert type to be consistent with blockchain data
 btc.rename(columns = {"Date" : "Timestamp"}, inplace = True)
 btc['Timestamp'] = pd.to_datetime(btc['Timestamp'], yearfirst = True)
 
-#Read in scraped blockchain data from blockchain.com
-repo_files = glob.glob("/Users/joevorbeck/Documents/btc_timeseries/blockchain_data/*.csv")
+#Read in scraped blockchain data from blockchain.com - wildcard to obtain the different metrics with date specified 
+repo_files = glob.glob(repo_path + "*" + str(today) + ".csv")
 
 #Read in all dfs and append to a list
 blockchain_dfs = []
@@ -33,6 +39,6 @@ merged_df = btc
 for df in blockchain_dfs:
     merged_df = merged_df.merge(df, on = "Timestamp", how = "left")
 
-#Write out analytical dataset to repo
-merged_df.to_csv("/Users/joevorbeck/Documents/btc_timeseries/analytical_datasets/btc_analytical_dataset" + str(today) + ".csv")
+#Write out analytical dataset to s3
+merged_df.to_csv("s3://analytical-datasets/btc_analytical_dataset" + str(today) + ".csv")
 
