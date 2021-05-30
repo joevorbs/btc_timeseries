@@ -5,6 +5,8 @@ A few different methods are included (cross-correlation, univariate) to develop 
 
 Forecasts will be plotted and stored in the Visualizations folder.
 
+*Currently being ported to aws.
+
 Datasources: 
   1) blockchain.com - Blockchain metrics
   2) coindesk.com - Bitcoin Price (Historical - To Date)
