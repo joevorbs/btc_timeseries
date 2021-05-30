@@ -3,17 +3,39 @@ warnings.simplefilter(action='ignore')
 
 import pandas as pd
 import numpy as np
+import boto3
+import s3fs
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options 
 from datetime import datetime
 from datetime import date
 import time
 import shutil
+import glob
 
 #Current date
 today = datetime.now().date()
 
-#Path to downloads folder
-dl_path = "/Users/joevorbeck/Downloads/"
+#Path to download folder
+dl_path = "/home/ec2-user/scraped_files/"
+
+#Path to repo folder
+repo_path = "/home/ec2-user/repos/btc_timeseries/aws_prod/blockchain_data/"
+
+#Path to chromedriver
+driver_path = "/usr/bin/chromedriver"
+
+#Options to run headless chrome on linux
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument("no-sandbox")
+chrome_options.add_argument("--disable-extensions")
+chrome_options.add_argument("--headless")
+chrome_options.add_argument("—disasble-dev-shm-usage")
+chrome_options.add_argument('--disable-gpu')
+chrome_options.add_argument('start-maximized') 
+chrome_options.add_argument('disable-infobars')
+chrome_options.add_argument("--disable-extensions")
+chrome_options.add_argument('--window-size=1280x1696')
 
 #List of pages from blockchain.com to obtain data from
 pages = ["https://www.blockchain.com/charts/total-bitcoins",
@@ -24,7 +46,7 @@ pages = ["https://www.blockchain.com/charts/total-bitcoins",
 
 #List of related metrics to scrape for website section
 currency_statistics = ["Total Circulating Bitcoin",
-                      "Market Price",
+                      "Market Price (USD)",
                       "Market Capitalization (USD)",
                       "Exchange Trade Volume (USD)"]
 
@@ -47,10 +69,8 @@ network_activity = ["Unspent Transaction Outputs",
 
 wallet_activity = ["Blockchain.com Wallets"]
 
-#all_metrics_to_scrape = [currency_statistics, block_details, network_activity, mining_info, wallet_activity]
-
 #Scrape Currency Statistics
-driver = webdriver.Chrome("/Users/joevorbeck/desktop/chromedriver")
+driver = webdriver.Chrome(driver_path, chrome_options = chrome_options)
 driver.get(pages[0])
 
 for i in currency_statistics:
@@ -62,12 +82,12 @@ for i in currency_statistics:
     print("Exported " + i )
     time.sleep(2)
     
-    for j in glob.glob(dl_path + "/*.csv"):
+    for j in glob.glob(dl_path + "*"):
         print("Moving " + j + " to git repo")
-        shutil.move(j, "/Users/joevorbeck/Documents/btc_timeseries/blockchain_data/" + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
+        shutil.move(j, repo_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
 
 #Scrape Block Details
-driver = webdriver.Chrome("/Users/joevorbeck/desktop/chromedriver")
+driver = webdriver.Chrome(driver_path, chrome_options = chrome_options)
 driver.get(pages[1])
 
 for i in block_details:
@@ -79,12 +99,12 @@ for i in block_details:
     print("Exported " + i )
     time.sleep(2)
     
-    for j in glob.glob(dl_path + "/*.csv"):
+    for j in glob.glob(dl_path + "*"):
         print("Moving " + j + " to git repo")
-        shutil.move(j, "/Users/joevorbeck/Documents/btc_timeseries/blockchain_data/" + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
+        shutil.move(j, repo_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
 
 #Scrape Mining Info
-driver = webdriver.Chrome("/Users/joevorbeck/desktop/chromedriver")
+driver = webdriver.Chrome(driver_path, chrome_options = chrome_options)
 driver.get(pages[2])
 
 for i in mining_info:
@@ -96,12 +116,12 @@ for i in mining_info:
     print("Exported " + i )
     time.sleep(2)
     
-    for j in glob.glob(dl_path + "/*.csv"):
+    for j in glob.glob(dl_path + "*"):
         print("Moving " + j + " to git repo")
-        shutil.move(j, "/Users/joevorbeck/Documents/btc_timeseries/blockchain_data/" + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
+        shutil.move(j, repo_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
 
 #Scrape Network Activity
-driver = webdriver.Chrome("/Users/joevorbeck/desktop/chromedriver")
+driver = webdriver.Chrome(driver_path, chrome_options = chrome_options)
 driver.get(pages[3])
 
 for i in network_activity:
@@ -113,12 +133,12 @@ for i in network_activity:
     print("Exported " + i )
     time.sleep(2)
     
-    for j in glob.glob(dl_path + "/*.csv"):
+    for j in glob.glob(dl_path + "*"):
         print("Moving " + j + " to git repo")
-        shutil.move(j, "/Users/joevorbeck/Documents/btc_timeseries/blockchain_data/" + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
+        shutil.move(j, repo_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
 
 #Scrape Wallet Activity
-driver = webdriver.Chrome("/Users/joevorbeck/desktop/chromedriver")
+driver = webdriver.Chrome(driver_path, chrome_options = chrome_options)
 driver.get(pages[4])
 
 for i in wallet_activity:
@@ -130,6 +150,6 @@ for i in wallet_activity:
     print("Exported " + i )
     time.sleep(2)
     
-    for j in glob.glob(dl_path + "/*.csv"):
+    for j in glob.glob(dl_path + "*"):
         print("Moving " + j + " to git repo")
-        shutil.move(j, "/Users/joevorbeck/Documents/btc_timeseries/blockchain_data/" + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
+        shutil.move(j, repo_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
