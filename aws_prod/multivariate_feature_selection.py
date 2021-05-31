@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 from datetime import date
 import time
+import boto3
+import s3fs
 
 #Current date
 today = datetime.now().date()
@@ -22,10 +24,10 @@ cutoff = range(min_leads, max_leads)
 target = "Closing Price (USD)"
 
 #Path to save to
-path = "/Users/joevorbeck/Documents/btc_timeseries/multivariate_feature_list/"
+path = "/home/ec2-user/repos/btc_timeseries/aws_prod/multivariate_feature_list/"
 
 #Read in analytical dataset comprised of blockchain and bitcoin data
-btc = pd.read_csv("btc_analytical_dataset" + str(today) + ".csv")
+btc = pd.read_csv("s3://analytical-datasets/btc_analytical_dataset" + str(today) + ".csv")
 
 #Remove unnecessary column
 btc.drop(["Currency","Unnamed: 0"], axis = 1, inplace = True)
@@ -47,7 +49,7 @@ btc_interp.rename(columns = {'Timestamp' : 'ds'}, inplace = True)
 btc_residuals = pd.DataFrame()
 
 #List of columns to iterate through - ignoring our target variable and date
-col_list = btc_interp.columns.remove[target, "ds"]
+col_list = [x for x in btc_interp.columns if x not in [target, "ds"]]
 
 #Loop for all variables minus the target and obtain their residuals
 for i in col_list:
@@ -79,7 +81,7 @@ new_df = new_df.iloc[::-1]
 new_df = new_df.reset_index().drop("index", axis = 1)
 
 #Append target back to dataframe  of led features - will be (N - L; number of rows - leads)
-new_df["Target"] = btc_interp[target][0:len(new_df)]
+new_df[target] = btc_interp[target][0:len(new_df)]
 
 #Isolate features & target
 X = new_df.drop(target, axis = 1)
@@ -93,7 +95,7 @@ y_train = y[0:round(len(y) * .66)]
 y_test = y[len(y_train):]
 
 #Initialize lasso regression - regularization will help eliminate any non-signifcant lead times - can use CV if data is prewhitened
-lasso_cv = LassoCV(cv = 5, n_alphas = 100, max_iter = 1000, normalize = True, n_jobs = -1) 
+lasso_cv = LassoCV(cv = 5, n_alphas = 1000, max_iter = 1000, normalize = True)
 
 #Fit model to training data
 lasso_cv.fit(X_train, y_train)
