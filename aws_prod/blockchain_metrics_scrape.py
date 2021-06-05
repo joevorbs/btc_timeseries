@@ -37,6 +37,11 @@ chrome_options.add_argument('disable-infobars')
 chrome_options.add_argument("--disable-extensions")
 chrome_options.add_argument('--window-size=1280x1696')
 
+chrome_options.add_experimental_option("prefs", {
+  "download.default_directory": dl_path,
+  "download.prompt_for_download": False,
+})
+
 #List of pages from blockchain.com to obtain data from
 pages = ["https://www.blockchain.com/charts/total-bitcoins",
          "https://www.blockchain.com/charts/blocks-size",
@@ -73,6 +78,10 @@ wallet_activity = ["Blockchain.com Wallets"]
 driver = webdriver.Chrome(driver_path, chrome_options = chrome_options)
 driver.get(pages[0])
 
+driver.command_executor._commands["send_command"] = ("POST", '/session/$sessionId/chromium/send_command')
+params = {'cmd': 'Page.setDownloadBehavior', 'params': {'behavior': 'allow', 'downloadPath': dl_path}}
+command_result = driver.execute("send_command", params)
+
 for i in currency_statistics:
     driver.find_element_by_link_text(i).click()
     time.sleep(2)
@@ -89,6 +98,10 @@ for i in currency_statistics:
 #Scrape Block Details
 driver = webdriver.Chrome(driver_path, chrome_options = chrome_options)
 driver.get(pages[1])
+
+driver.command_executor._commands["send_command"] = ("POST", '/session/$sessionId/chromium/send_command')
+params = {'cmd': 'Page.setDownloadBehavior', 'params': {'behavior': 'allow', 'downloadPath': dl_path}}
+command_result = driver.execute("send_command", params)
 
 for i in block_details:
     driver.find_element_by_link_text(i).click()
@@ -107,6 +120,10 @@ for i in block_details:
 driver = webdriver.Chrome(driver_path, chrome_options = chrome_options)
 driver.get(pages[2])
 
+driver.command_executor._commands["send_command"] = ("POST", '/session/$sessionId/chromium/send_command')
+params = {'cmd': 'Page.setDownloadBehavior', 'params': {'behavior': 'allow', 'downloadPath': dl_path}}
+command_result = driver.execute("send_command", params)
+
 for i in mining_info:
     driver.find_element_by_link_text(i).click()
     time.sleep(2)
@@ -124,6 +141,10 @@ for i in mining_info:
 driver = webdriver.Chrome(driver_path, chrome_options = chrome_options)
 driver.get(pages[3])
 
+driver.command_executor._commands["send_command"] = ("POST", '/session/$sessionId/chromium/send_command')
+params = {'cmd': 'Page.setDownloadBehavior', 'params': {'behavior': 'allow', 'downloadPath': dl_path}}
+command_result = driver.execute("send_command", params)
+
 for i in network_activity:
     driver.find_element_by_link_text(i).click()
     time.sleep(2)
@@ -140,6 +161,10 @@ for i in network_activity:
 #Scrape Wallet Activity
 driver = webdriver.Chrome(driver_path, chrome_options = chrome_options)
 driver.get(pages[4])
+
+driver.command_executor._commands["send_command"] = ("POST", '/session/$sessionId/chromium/send_command')
+params = {'cmd': 'Page.setDownloadBehavior', 'params': {'behavior': 'allow', 'downloadPath': dl_path}}
+command_result = driver.execute("send_command", params)
 
 for i in wallet_activity:
     driver.find_element_by_link_text(i).click()
