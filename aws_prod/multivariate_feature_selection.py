@@ -27,7 +27,7 @@ target = "Closing Price (USD)"
 path = "/home/ec2-user/repos/btc_timeseries/aws_prod/multivariate_feature_list/"
 
 #Read in analytical dataset comprised of blockchain and bitcoin data
-btc = pd.read_csv("s3://analytical-datasets/btc_analytical_dataset" + str(today) + ".csv")
+btc = pd.read_csv("s3://analytical-datasets/btc_analytical_dataset"+ str(today) + ".csv")
 
 #Remove unnecessary column
 btc.drop(["Currency","Unnamed: 0"], axis = 1, inplace = True)
@@ -36,8 +36,14 @@ btc.drop(["Currency","Unnamed: 0"], axis = 1, inplace = True)
 btc['Timestamp'] = pd.to_datetime(btc['Timestamp'], yearfirst = True)
 
 #Interpolate missing values - we have BTC price data for everyday but not every blockchain metric is tracked everyday
-#Can use a timeseries based method to interpolate missing values - imputing averages won't work in BTC case
+#Can use a timeseries based method to interpolate missing values
 btc_interp = btc.set_index("Timestamp").interpolate("time", axis = 0)
+
+#Fill rest of missing values with the avereage
+btc_interp.fillna(btc_interp.mean(), inplace = True)
+
+#Aggregate by day to deal with duplication - some of the metrics are reported more than once a day - ones that are once a day won't be affected by this
+btc_interp = btc_interp.groupby("Timestamp").agg("mean")
 
 #Drop rows were interpolation cant fill rows & reset index so timestamp is used as a column
 btc_interp = btc_interp.dropna().reset_index()
@@ -95,7 +101,7 @@ y_train = y[0:round(len(y) * .66)]
 y_test = y[len(y_train):]
 
 #Initialize lasso regression - regularization will help eliminate any non-signifcant lead times - can use CV if data is prewhitened
-lasso_cv = LassoCV(cv = 5, n_alphas = 1000, max_iter = 1000, normalize = True)
+lasso_cv = LassoCV(cv = 5, n_alphas = 100, max_iter = 1000, normalize = True)
 
 #Fit model to training data
 lasso_cv.fit(X_train, y_train)
