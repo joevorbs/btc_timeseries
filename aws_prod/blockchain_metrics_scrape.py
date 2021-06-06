@@ -20,7 +20,7 @@ today = datetime.now().date()
 dl_path = "/home/ec2-user/scraped_files/"
 
 #Path to repo folder
-s3_path = "s3://btc-coindesk/
+s3_path = "s3://btc-coindesk/"
 
 #Path to chromedriver
 driver_path = "/usr/bin/chromedriver"
