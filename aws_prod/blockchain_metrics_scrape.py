@@ -20,7 +20,7 @@ today = datetime.now().date()
 dl_path = "/home/ec2-user/scraped_files/"
 
 #Path to repo folder
-repo_path = "/home/ec2-user/repos/btc_timeseries/aws_prod/blockchain_data/"
+s3_path = "s3://btc-coindesk/
 
 #Path to chromedriver
 driver_path = "/usr/bin/chromedriver"
@@ -92,8 +92,8 @@ for i in currency_statistics:
     time.sleep(2)
     
     for j in glob.glob(dl_path + "*"):
-        print("Moving " + j + " to git repo")
-        shutil.move(j, repo_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
+        print("Moving " + j + " to s3")
+        shutil.move(j, s3_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
 
 #Scrape Block Details
 driver = webdriver.Chrome(driver_path, chrome_options = chrome_options)
@@ -113,8 +113,8 @@ for i in block_details:
     time.sleep(2)
     
     for j in glob.glob(dl_path + "*"):
-        print("Moving " + j + " to git repo")
-        shutil.move(j, repo_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
+        print("Moving " + j + " to s3")
+        shutil.move(j, s3_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
 
 #Scrape Mining Info
 driver = webdriver.Chrome(driver_path, chrome_options = chrome_options)
@@ -134,8 +134,8 @@ for i in mining_info:
     time.sleep(2)
     
     for j in glob.glob(dl_path + "*"):
-        print("Moving " + j + " to git repo")
-        shutil.move(j, repo_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
+        print("Moving " + j + " to s3")
+        shutil.move(j, s3_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
 
 #Scrape Network Activity
 driver = webdriver.Chrome(driver_path, chrome_options = chrome_options)
@@ -155,8 +155,8 @@ for i in network_activity:
     time.sleep(2)
     
     for j in glob.glob(dl_path + "*"):
-        print("Moving " + j + " to git repo")
-        shutil.move(j, repo_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
+        print("Moving " + j + " to s3")
+        shutil.move(j, s3_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
 
 #Scrape Wallet Activity
 driver = webdriver.Chrome(driver_path, chrome_options = chrome_options)
@@ -176,5 +176,5 @@ for i in wallet_activity:
     time.sleep(2)
     
     for j in glob.glob(dl_path + "*"):
-        print("Moving " + j + " to git repo")
-        shutil.move(j, repo_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
+        print("Moving " + j + " to s3")
+        shutil.move(j, s3_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
