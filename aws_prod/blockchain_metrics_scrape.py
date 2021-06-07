@@ -20,7 +20,7 @@ today = datetime.now().date()
 dl_path = "/home/ec2-user/scraped_files/"
 
 #Path to repo folder
-s3_path = "s3://btc-coindesk/"
+s3_path = "s3://blockchain-scrape/"
 
 #Path to chromedriver
 driver_path = "/usr/bin/chromedriver"
@@ -90,10 +90,6 @@ for i in currency_statistics:
     driver.find_element_by_xpath("//option[contains(.,'CSV Format')]").click()
     print("Exported " + i )
     time.sleep(2)
-    
-    for j in glob.glob(dl_path + "*"):
-        print("Moving " + j + " to s3")
-        shutil.move(j, s3_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
 
 #Scrape Block Details
 driver = webdriver.Chrome(driver_path, chrome_options = chrome_options)
@@ -112,10 +108,6 @@ for i in block_details:
     print("Exported " + i )
     time.sleep(2)
     
-    for j in glob.glob(dl_path + "*"):
-        print("Moving " + j + " to s3")
-        shutil.move(j, s3_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
-
 #Scrape Mining Info
 driver = webdriver.Chrome(driver_path, chrome_options = chrome_options)
 driver.get(pages[2])
@@ -132,10 +124,6 @@ for i in mining_info:
     driver.find_element_by_xpath("//option[contains(.,'CSV Format')]").click()
     print("Exported " + i )
     time.sleep(2)
-    
-    for j in glob.glob(dl_path + "*"):
-        print("Moving " + j + " to s3")
-        shutil.move(j, s3_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
 
 #Scrape Network Activity
 driver = webdriver.Chrome(driver_path, chrome_options = chrome_options)
@@ -153,10 +141,6 @@ for i in network_activity:
     driver.find_element_by_xpath("//option[contains(.,'CSV Format')]").click()
     print("Exported " + i )
     time.sleep(2)
-    
-    for j in glob.glob(dl_path + "*"):
-        print("Moving " + j + " to s3")
-        shutil.move(j, s3_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
 
 #Scrape Wallet Activity
 driver = webdriver.Chrome(driver_path, chrome_options = chrome_options)
@@ -174,7 +158,9 @@ for i in wallet_activity:
     driver.find_element_by_xpath("//option[contains(.,'CSV Format')]").click()
     print("Exported " + i )
     time.sleep(2)
-    
-    for j in glob.glob(dl_path + "*"):
-        print("Moving " + j + " to s3")
-        shutil.move(j, s3_path + i.replace(" ", "_").lower() + "_" + str(today) + ".csv")
+
+#Write all files to s3
+for j in glob.glob(dl_path + "*"):
+    print("Moving " + j + " to s3")
+    df = pd.read_csv(j)
+    df.to_csv(s3_path  + j.replace(dl_path, "") + "_" + str(today) + ".csv")
