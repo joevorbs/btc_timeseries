@@ -24,7 +24,7 @@ cutoff = range(min_leads, max_leads)
 target = "Closing Price (USD)"
 
 #Path to save to
-path = "/home/ec2-user/repos/btc_timeseries/aws_prod/multivariate_feature_list/"
+s3_path = "s3://multivariate-features/"
 
 #Read in analytical dataset comprised of blockchain and bitcoin data
 btc = pd.read_csv("s3://analytical-datasets/btc_analytical_dataset"+ str(today) + ".csv")
@@ -113,4 +113,4 @@ coefs = pd.DataFrame(list(zip(lasso_cv.coef_, X_train.columns))).rename(columns 
 #Filter any coefficients shrunk to 0
 coefs_final_list = coefs[coefs['Beta'] > 0]
 #Write out list of features for the forecasting model
-coefs_final_list['Feature'].to_csv(path + "feature_list_" + str(today) + ".csv")
+coefs_final_list['Feature'].to_csv(s3_path + "feature_list_" + str(today) + ".csv")
