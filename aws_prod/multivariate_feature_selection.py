@@ -18,7 +18,7 @@ today = datetime.now().date()
 min_leads, max_leads = [183,730] #About half a year to 2 years
 
 #Cutoff for lead times in days - if every lead is included we will have a one row dataset
-cutoff = range(min_leads, max_leads)
+cutoff = range(min_leads, max_leads + 1) #range isnt inclusive
 
 #Target for variable selection
 target = "Closing Price (USD)"
@@ -74,7 +74,8 @@ btc_residuals_flip = btc_residuals.iloc[::-1]
 #For every column, create a new column based off every single possible lead time in the specified range and append to a blank df
 for i in btc_residuals_flip.columns:
     for j in cutoff:
-        new_col = btc_residuals_flip[i].shift(j)
+        x = -abs(j) #Need to create offsets from the bottom 
+        new_col = btc_residuals_flip[i].shift(x)
         new_df[str(i) + "_" + str(j)] = new_col  #Name of each column is the column name with the lead time as a suffix
 
 #Trim off rows with subsequent missing values
