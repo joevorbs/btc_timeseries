@@ -16,7 +16,7 @@ today = datetime.now().date()
 min_leads, max_leads = [183,730] #About half a year to 2 years
 
 #Cutoff for lead times in days - if every lead is included we will have a one row dataset
-cutoff = range(min_leads, max_leads)
+cutoff = range(min_leads, max_leads + 1) #Range is not inclusive
 
 #Target for forecast
 target = "Closing Price (USD)"
@@ -50,13 +50,14 @@ btc_filtered_reverse = btc_interp.iloc[::-1]
 #Drop timestamp
 btc_filtered_reverse.drop("Timestamp", axis =  1, inplace = True)
 
-#Create empty df to store led dataframe
+#Create empty df to store offset dataframe
 btc_ml_df = pd.DataFrame()
 
 #For every column, create a new column based off every single possible lead time in the specified range and append to a blank df
 for i in btc_filtered_reverse.columns:
     for j in cutoff:
-        new_col = btc_filtered_reverse[i].shift(j)
+        x = -abs(j) #Need to create offsets from the bottom
+        new_col = btc_filtered_reverse[i].shift(x)
         btc_ml_df[str(i) + "_" + str(j)] = new_col  #Name of each column is the column name with the lead time as a suffix
 
 #Drop blank rows
