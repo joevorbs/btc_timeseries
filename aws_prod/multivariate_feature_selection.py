@@ -15,7 +15,10 @@ import s3fs
 today = datetime.now().date()
 
 #Minimum and maxium lead times (in days)
-min_leads, max_leads = [183,730] #About half a year to 2 years
+min_leads, max_leads = [1,183] #Up to half a year out
+
+#Scaling method
+scaler = StandardScaler()
 
 #Cutoff for lead times in days - if every lead is included we will have a one row dataset
 cutoff = range(min_leads, max_leads + 1) #range isnt inclusive
@@ -55,7 +58,7 @@ btc_interp.rename(columns = {'Timestamp' : 'ds'}, inplace = True)
 btc_residuals = pd.DataFrame()
 
 #List of columns to iterate through - ignoring our target variable and date
-col_list = [x for x in btc_interp.columns if x not in [target, "ds"]]
+col_list = [x for x in btc_interp.columns if x not in ["ds"]]
 
 #Loop for all variables minus the target and obtain their residuals
 for i in col_list:
@@ -72,11 +75,15 @@ new_df = pd.DataFrame()
 btc_residuals_flip = btc_residuals.iloc[::-1]
 
 #For every column, create a new column based off every single possible lead time in the specified range and append to a blank df
-for i in btc_residuals_flip.columns:
+for i in [x for x in btc_residuals_flip.columns if x not in [target]]:
     for j in cutoff:
         x = -abs(j) #Need to create offsets from the bottom 
         new_col = btc_residuals_flip[i].shift(x)
         new_df[str(i) + "_" + str(j)] = new_col  #Name of each column is the column name with the lead time as a suffix
+
+
+#Append pre-whitened target back to offset df
+new_df[target] = btc_residuals[target]
 
 #Trim off rows with subsequent missing values
 new_df.dropna(inplace = True)
@@ -87,22 +94,24 @@ new_df = new_df.iloc[::-1]
 #Reset index to append target back to dataset - will try to match up rows based on the index
 new_df = new_df.reset_index().drop("index", axis = 1)
 
-#Append target back to dataframe  of led features - will be (N - L; number of rows - leads)
-new_df[target] = btc_interp[target][0:len(new_df)]
-
 #Isolate features & target
 X = new_df.drop(target, axis = 1)
-y = np.log(new_df[target]) #Taking the log of btc price
+#y = np.log(new_df[target]) #Taking the log of btc price
+y = np.array(new_df[target])
 
+#Scale X/y
+X_scaled = pd.DataFrame(scaler.fit(X).transform(X), columns = X.columns)
+y_scaled = scaler.fit(y.reshape(-1,1)).transform(y.reshape(-1,1))
+ 
 #Train/test split - want to keep 2/3 of the data for training, 1/3 for testing
-X_train = X[0:round(len(X) * .66)]
-X_test = X[len(X_train):]
+X_train = X_scaled[0:round(len(X_scaled) * .66)]
+X_test = X_scaled[len(X_train):]
 
-y_train = y[0:round(len(y) * .66)]
-y_test = y[len(y_train):]
+y_train = y_scaled[0:round(len(y_scaled) * .66)]
+y_test = y_scaled[len(y_train):]
 
 #Initialize lasso regression - regularization will help eliminate any non-signifcant lead times - can use CV if data is prewhitened
-lasso_cv = LassoCV(cv = 5, n_alphas = 100, max_iter = 1000, normalize = True)
+lasso_cv = LassoCV(cv = 5, n_alphas = 1000, max_iter = 1000, normalize = False)
 
 #Fit model to training data
 lasso_cv.fit(X_train, y_train)
