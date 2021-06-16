@@ -29,6 +29,9 @@ blockchain_dfs = []
 for file in my_bucket.objects.all():
     blockchain_dfs.append(file.key)
 
+#Filter files for today's run
+blockchain_dfs = [x for x in blockchain_dfs if str(today) in x]
+
 #Create list to append dfs read in from s3
 df_list = []
 for filename in blockchain_dfs:
