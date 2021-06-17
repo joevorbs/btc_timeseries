@@ -35,19 +35,23 @@ features_list = pd.read_csv("s3://multivariate-features/" + "feature_list_" + st
 ###need to make the trimming programmatic
 features_list_trimmed = set([i.split("_")[0] for i in features_list['Feature'].values]) #Trim off lead time suffix to use a filter on normal col names
 btc_filtered = btc[[*features_list_trimmed]]
-
-#Convert Timestamp to datetime - need for interpolation
+#Need to append timestamp for interpolation
+btc_filtered['Timestamp'] = btc['Timestamp'] 
+#Convert Timestamp to datetime
 btc_filtered['Timestamp'] = pd.to_datetime(btc['Timestamp'], yearfirst = True)
 
 #Interpolate missing values - we have BTC price data for everyday but not every blockchain metric is tracked everyday
 #Can use a timeseries based method to interpolate missing values - imputing averages won't work in BTC case
 btc_interp = btc_filtered.set_index("Timestamp").interpolate("time", axis = 0)
 
+#Fill rest of missing values with the avereage
+btc_interp.fillna(btc_interp.mean(), inplace = True)
+
 #Aggregate by day to deal with duplication - some of the metrics are reported more than once a day - ones that are once a day won't be affected by this
 btc_interp = btc_interp.groupby("Timestamp").agg("mean")
 
 #Drop rows were interpolation cant fill rows & reset index so timestamp is used as a column
-#btc_interp = btc_interp.dropna().reset_index()
+btc_interp = btc_interp.dropna().reset_index()
 
 #Reverse the order of the dataset to create leads
 btc_filtered_reverse = btc_interp.iloc[::-1]
